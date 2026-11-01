@@ -51,7 +51,9 @@ namespace Utils
 	{
 		if (a_hkbCharacter) {
 			const RE::BShkbAnimationGraph* animGraph = SKSE::stl::adjust_pointer<RE::BShkbAnimationGraph>(a_hkbCharacter, -0xC0);
-			return animGraph->holder;
+			if (animGraph && animGraph->holder) {
+				return animGraph->holder->As<RE::Actor>();
+			}
 		}
 
 		return nullptr;

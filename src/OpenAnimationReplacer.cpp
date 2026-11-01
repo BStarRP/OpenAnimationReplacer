@@ -65,10 +65,7 @@ ReplacementAnimation* OpenAnimationReplacer::GetReplacementAnimation(RE::hkbChar
 
 	if (a_originalIndex != static_cast<uint16_t>(-1)) {
 		if (const auto stringData = Utils::GetStringDataFromHkbCharacter(a_character)) {
-			const RE::BShkbAnimationGraph* animGraph = SKSE::stl::adjust_pointer<RE::BShkbAnimationGraph>(a_character, -0xC0);
-			RE::Actor* actor = animGraph->holder;
-
-			return GetReplacementAnimation(stringData, a_clipGenerator, a_originalIndex, actor);
+			return GetReplacementAnimation(stringData, a_clipGenerator, a_originalIndex, Utils::GetActorFromHkbCharacter(a_character));
 		}
 	}
 

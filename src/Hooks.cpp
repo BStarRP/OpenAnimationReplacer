@@ -73,7 +73,7 @@ namespace Hooks
 	{
 		auto& openAnimationReplacer = OpenAnimationReplacer::GetSingleton();
 
-		if (openAnimationReplacer.HasActiveAnimationPreviews()) {
+		if (openAnimationReplacer.HasActiveAnimationPreviews() && a_context.character && a_context.character->behaviorGraph) {
 			openAnimationReplacer.RemoveActiveAnimationPreview(a_context.character->behaviorGraph.get());
 		}
 
@@ -91,11 +91,9 @@ namespace Hooks
 	{
 		const auto activeClip = OpenAnimationReplacer::GetSingleton().GetActiveClip(a_this);
 		if (activeClip && activeClip->IsBlending()) {
-			//activeClip->PreGenerate(a_this, a_context, a_output);
-
 			// if the animation is not fully loaded yet, call generate with our fake clip generator containing the previous animation instead - this avoids seeing the reference pose for a frame
-			if (a_this->userData != 0xC) {
-				if (auto lastBlendingClipGenerator = activeClip->GetLastBlendingClipGenerator()) {
+			if (a_this && a_this->userData != 0xC) {
+				if (auto lastBlendingClipGenerator = activeClip->GetLastBlendingClipGenerator(); lastBlendingClipGenerator && lastBlendingClipGenerator->animationControl) {
 					_hkbClipGenerator_Generate(lastBlendingClipGenerator, a_context, a_activeChildrenOutput, a_output, a_timeOffset);
 					return;
 				}
@@ -212,8 +210,10 @@ namespace Hooks
 	{
 		_hkbBehaviorGraph_Generate(a_this, a_context, a_activeChildrenOutput, a_output, a_timeOffset);
 
-		if (const auto activeAnimationPreview = OpenAnimationReplacer::GetSingleton().GetActiveAnimationPreview(a_context.character->behaviorGraph.get())) {
-			activeAnimationPreview->OnGenerate(a_this, a_context, a_output);
+		if (a_context.character && a_context.character->behaviorGraph) {
+			if (const auto activeAnimationPreview = OpenAnimationReplacer::GetSingleton().GetActiveAnimationPreview(a_context.character->behaviorGraph.get())) {
+				activeAnimationPreview->OnGenerate(a_this, a_context, a_output);
+			}
 		}
 	}
 
